@@ -6,16 +6,16 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
 import com.shyam.mobile.dto.MobilePhoneDto;
+import com.shyam.mobile.exceptions.MobileColorNotFoundException;
 import com.shyam.mobile.exceptions.MobileIdNotFoundException;
 import com.shyam.mobile.exceptions.MobileNotFoundException;
 import com.shyam.mobile.exceptions.MobilePhoneAlreadyExistsException;
 import com.shyam.mobile.exceptions.MobilePhoneBrandNotExist;
 import com.shyam.mobile.exceptions.MobilePhoneListNotExist;
-import com.shyam.mobile.exceptions.MobilePhoneModelNotExist;
+import com.shyam.mobile.exceptions.MobilePhoneProcessorNotFoundException;
 import com.shyam.mobile.exceptions.MobilesNotExistsException;
 import com.shyam.mobile.models.MobilePhone;
 import com.shyam.mobile.models.MobilePhoneList;
@@ -67,11 +67,11 @@ public class MobilephoneServiceImpl implements MobileService {
 
 	@Override
 	public MobilePhone getMobilePhoneByBrandName(String brandName) throws MobilePhoneBrandNotExist {
-		MobilePhone mobilePhone = mobilePhoneRepository.findByBrandName(brandName);
-		if(mobilePhone.getMobileName()==null) {
+		Optional<MobilePhone> mobilePhone = mobilePhoneRepository.findByBrandName(brandName);
+		if(mobilePhone.isEmpty()) {
 			throw new MobilePhoneBrandNotExist();
 		}else {
-			return mobilePhone;
+			return mobilePhone.get();
 		}
 	}
 
@@ -99,12 +99,12 @@ public class MobilephoneServiceImpl implements MobileService {
 
 	@Override
 	public List<MobilePhoneDto> getAllMobilePhones() throws MobilesNotExistsException {
-		List<MobilePhone> mobilePhone = mobilePhoneRepository.findAll();
-		if(mobilePhone.isEmpty()){
+		List<MobilePhone> mobilePhones = mobilePhoneRepository.findAll();
+		if(mobilePhones.isEmpty()){
 			throw new MobilesNotExistsException();
 		}else {
-			return mobilePhone.stream().map(
-					mobilePhone1 -> modelMapper.map(mobilePhone,MobilePhoneDto.class)
+			return mobilePhones.stream().map(
+					mobilePhone -> modelMapper.map(mobilePhone,MobilePhoneDto.class)
 			).collect(Collectors.toList());
 		}
 	}
@@ -120,27 +120,40 @@ public class MobilephoneServiceImpl implements MobileService {
 	}
 
 	@Override
-	public List<MobilePhoneDto> getMobilePhoneDtoByBrandName(String brandName) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<MobilePhoneDto> getMobilePhoneDtoByBrandName(String brandName) throws MobilePhoneBrandNotExist {
+		List<MobilePhone> mobilePhones = mobilePhoneRepository.findAll();
+		if(mobilePhones.isEmpty()) {
+			throw new MobilePhoneBrandNotExist();
+		}else {
+			return mobilePhones.stream()
+					.filter(phone -> phone.getBrandName().equals(brandName))
+					.map(mobilePhone -> modelMapper.map(mobilePhone,MobilePhoneDto.class))
+					.collect(Collectors.toList());
+		}
 	}
 
 	@Override
 	public int getMobilePhoneCount(double cost) {
-		// TODO Auto-generated method stub
+		
 		return 0;
 	}
 
 	@Override
-	public List<MobilePhone> getByProcessor(String processor) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<MobilePhone> getByProcessor(String processor) throws MobilePhoneProcessorNotFoundException   {
+		List<MobilePhone> mobilePhones = mobilePhoneRepository.findByProcessor(processor);
+		if(mobilePhones.isEmpty()) {
+			throw new MobilePhoneProcessorNotFoundException();
+		}
+		return mobilePhones;
 	}
 
 	@Override
-	public int getMobilePhonesCount() {
-		// TODO Auto-generated method stub
-		return 0;
+	public int getMobilePhonesCount() throws MobilesNotExistsException {
+		List<MobilePhone> optional = mobilePhoneRepository.findAll();
+		if(optional.isEmpty()) {
+			throw new MobilesNotExistsException();
+		}
+		return (int) mobilePhoneRepository.count();
 	}
 
 	@Override
@@ -156,9 +169,12 @@ public class MobilephoneServiceImpl implements MobileService {
 	}
 
 	@Override
-	public List<MobilePhone> getByColor(String color) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<MobilePhone> getByColor(String color) throws MobileColorNotFoundException  {
+		List<MobilePhone> mobilePhones = mobilePhoneRepository.findByColor(color);
+		if(mobilePhones.isEmpty()) {
+			throw new MobileColorNotFoundException();
+		}
+		return mobilePhones;
 	}
 
 }

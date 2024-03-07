@@ -1,6 +1,7 @@
 package com.shyam.mobile.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,9 +14,12 @@ import com.shyam.mobile.models.MobilePhone;
 public interface MobilePhoneRepository extends JpaRepository<MobilePhone, Long>{
 	
 	@Query("select m from MobilePhone m where m.brandName=:brandName")
-	MobilePhone findByBrandName(@Param("brandName") String brandName);
+	Optional<MobilePhone> findByBrandName(@Param("brandName") String brandName);
 //    List<MobilePhone> findByCostGreaterThan(double cost);
-//    List<MobilePhone> findByProcessor(String processor);
-//    List<MobilePhone> findByColorIn(List<String> colors);
-//    List<String> findDistinctByModelName();
+    
+    @Query("select m from MobilePhone m where m.processor = :processor")
+    List<MobilePhone> findByProcessor(@Param("processor") String processor);
+    
+    @Query("select m from MobilePhone m where m.color = :color")
+    List<MobilePhone> findByColor(String color);
 }

@@ -14,13 +14,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.shyam.mobile.dto.MobilePhoneDto;
+import com.shyam.mobile.exceptions.MobileColorNotFoundException;
 import com.shyam.mobile.exceptions.MobileIdNotFoundException;
 import com.shyam.mobile.exceptions.MobileNotFoundException;
 import com.shyam.mobile.exceptions.MobilePhoneAlreadyExistsException;
 import com.shyam.mobile.exceptions.MobilePhoneBrandNotExist;
-import com.shyam.mobile.exceptions.MobilePhoneColorNotFoundException;
 import com.shyam.mobile.exceptions.MobilePhoneListNotExist;
-import com.shyam.mobile.exceptions.MobilePhoneModelNotExist;
 import com.shyam.mobile.exceptions.MobilePhoneProcessorNotFoundException;
 import com.shyam.mobile.exceptions.MobilesNotExistsException;
 import com.shyam.mobile.models.MobilePhone;
@@ -83,7 +82,7 @@ public class MobilePhoneController {
 	//get Mobile Phone whose having processor with name - Quad Core
 
 	@GetMapping("/getColor")
-	public ResponseEntity<List<MobilePhone>> getColor(@RequestParam String color) throws MobilePhoneColorNotFoundException{
+	public ResponseEntity<List<MobilePhone>> getColor(@RequestParam String color) throws MobileColorNotFoundException{
 		return new ResponseEntity<>(mobileService.getByColor(color),HttpStatus.OK);
 	} //get Mobile Phone whose having color - black and blue
 
